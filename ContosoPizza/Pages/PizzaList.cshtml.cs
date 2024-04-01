@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using ContosoPizza.Models;
 using ContosoPizza.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,35 @@ namespace ContosoPizza.Pages
 
         public PizzaListModel(PizzaService service)
         {
+
             _service = service;
         }
 
         public void OnGet()
         {
             PizzaList = _service.GetPizzas();
+        }
+
+        [BindProperty]
+        public Pizza NewPizza { get; set; } = default!;
+
+        public IActionResult OnPost()
+        {
+            if (!ModelState.IsValid || NewPizza == null)
+            {
+                return Page();
+            }
+
+            _service.AddPizza(NewPizza);
+
+            return RedirectToAction("Get");
+        }
+
+        public IActionResult OnPostDelete(int id)
+        {
+            _service.DeletePizza(id);
+
+            return RedirectToAction("Get");
         }
     }
 }
